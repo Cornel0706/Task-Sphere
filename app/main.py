@@ -5,12 +5,25 @@ from . import models, schemas, database
 from typing import List, Optional
 from .auth import get_password_hash, create_access_token, verify_password, SECRET_KEY, ALGORITHM
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 
 models.Base.metadata.create_all(bind=database.engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], 
+    allow_headers=["*"], 
+)
 
 def get_db():
     db = database.SessionLocal()
@@ -113,30 +126,6 @@ def delete_task(
 
     return {"message": "Task deleted successfully"}
 
-
-@app.patch("/tasks/{task_id}", response_model=schemas.Task)
-def update_task(
-    task_id: int,
-    task: schemas.TaskUpdate,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
-
-    if db_task is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    if db_task.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to update this task")
-    
-    task_data = task.model_dump(exclude_unset=True)
-
-    for key in task_data:
-        setattr(db_task, key, task_data[key])
-
-    db.commit()
-    db.refresh(db_task)
-    return db_task
-
 @app.post("/categories/", response_model=schemas.Category)
 def create_category(
     category: schemas.CategoryCreate,
@@ -203,3 +192,31 @@ def read_own_categories(
 ):
     categories = db.query(models.Category).filter(models.Category.owner_id == current_user.id).offset(skip).limit(limit).all()
     return categories
+
+
+@app.put("/tasks/{task_id}", response_model=schemas.Task) # Am pus schemas. aici
+def update_task(
+    task_id: int, 
+    task_update: schemas.TaskCreate, # Adăugat "schemas."
+    db: Session = Depends(get_db), 
+    current_user: schemas.User = Depends(get_current_user) # Adăugat "schemas."
+):
+    # Restul codului rămâne la fel...
+    # 1. Căutăm task-ul în baza de date
+    db_task = db.query(models.Task).filter(
+        models.Task.id == task_id, 
+        models.Task.owner_id == current_user.id
+    ).first()
+    
+    if not db_task:
+        raise HTTPException(status_code=404, detail="Task not found or not yours")
+
+    # 2. Actualizăm valorile cu ce am primit din Frontend
+    db_task.title = task_update.title
+    db_task.description = task_update.description if task_update.description is not None else ""
+    db_task.priority = task_update.priority if task_update.priority is not None else "Low"
+    db_task.completed = task_update.completed
+
+    db.commit()
+    db.refresh(db_task)
+    return db_task

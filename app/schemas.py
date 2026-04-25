@@ -17,6 +17,7 @@ class TaskCreate(TaskBase):
 class Task(TaskBase):
     id: int
     owner_id: int
+    category: Optional["Category"] = None
 
     class Config:
         orm_mode = True
