@@ -36,6 +36,15 @@ TaskSphere is a high-performance, full-stack task management application designe
 
 ---
 
+
+### 🧠 Technical Highlights
+- **Tailwind v4 Migration:** Successfully implemented the new CSS-first configuration approach of Tailwind v4, moving away from legacy JS configuration files for a more streamlined development process.
+- **Nested State Synchronization:** Keeps related task and category data consistent across the UI by updating nested state predictably after user actions and API responses.
+- **Glassmorphism UI Design:** Developed a sophisticated dark-themed interface using high-transparency layers, backdrop blurs, and emerald-toned shadows to achieve a modern, premium feel.
+- **Full-Stack Integration:** Seamlessly connected a Python FastAPI backend with a React frontend using standardized JSON schemas and Bearer Token authentication for secure data exchange.
+- 
+---
+
 ## 📂 Project Structure
 
 ```text
@@ -45,10 +54,3 @@ TaskSphere/
 ├── venv/               # Python Virtual Environment
 └── README.md
 
----
-
-### 🧠 Technical Highlights
-- **Tailwind v4 Migration:** Successfully implemented the new CSS-first configuration approach of Tailwind v4, moving away from legacy JS configuration files for a more streamlined development process.
-- **Nested State Synchronization:** Keeps related task and category data consistent across the UI by updating nested state predictably after user actions and API responses.
-- **Glassmorphism UI Design:** Developed a sophisticated dark-themed interface using high-transparency layers, backdrop blurs, and emerald-toned shadows to achieve a modern, premium feel.
-- **Full-Stack Integration:** Developed a sophisticated dark-themed interface using high-transparency layers, backdrop blurs, and emerald-toned shadows to achieve a modern, premium feel.
